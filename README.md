@@ -4,7 +4,7 @@
   <img src="./docs/imgs/pheasant-logo.png" title="Pheasant API SethPhat SethSandaru" alt="Pheasant API SethPhat SethSandaru">
 </p>
 
-Pheasant is a dynamic CRUD Management which helps end-users to create the CRUD listing/form in seconds then use it immediately.
+Pheasant is a dynamic CRUD Management which helps end-users to create the CRUD listing/form in seconds then use it with ease and fun.
 
 Pheasant comes with 2 parts:
 - API (this repo)
@@ -16,7 +16,7 @@ But if you don't want PheasantCloud keeping your data, feel free to clone and de
 
 ## Why?
 - From high-level/end-users PoV: I want to manage data with ease with Good UI, I'm bored with Excel and stuff.
-- From low-level/code-wise: CRUD mostly copy-paste, let's do less of that hehehe.
+- From low-level/code-wise: CRUD mostly copy-paste, let's do less of that and Pheasant will help you.
 
 ## Dependencies
 - Go 1.16
