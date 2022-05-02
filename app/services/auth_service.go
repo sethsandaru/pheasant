@@ -14,13 +14,18 @@ import (
 type AuthService interface {
 	CheckAuthentication(loginBody requests.LoginBody) (string, error)
 	ValidateToken(token string) (*jwt.Token, error)
+
+	Register(email string, password string, fullName string) (*models.User, error)
 }
 
 type authServiceParams struct {
 	secretKey []byte
+	userModel models.UserModel
 }
 
 const tokenTtl = 30 // minutes
+const bcryptPasswordCost = 14
+
 type Claims struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`
@@ -30,12 +35,13 @@ type Claims struct {
 func GetAuthService() AuthService {
 	return &authServiceParams{
 		secretKey: getJwtKey(),
+		userModel: models.GetUserModel(),
 	}
 }
 
 // CheckAuthentication will handle the check and return the JWT token on success
 func (service *authServiceParams) CheckAuthentication(loginBody requests.LoginBody) (string, error) {
-	user, err := models.GetUserByEmail(loginBody.Email)
+	user, err := service.userModel.GetUserByEmail(loginBody.Email)
 	if err != nil {
 		return "", err
 	}
@@ -58,6 +64,19 @@ func (service *authServiceParams) ValidateToken(token string) (*jwt.Token, error
 		}
 
 		return []byte(service.secretKey), nil
+	})
+}
+
+func (service *authServiceParams) Register(email string, password string, fullName string) (*models.User, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcryptPasswordCost)
+	if err != nil {
+		return nil, err
+	}
+
+	return service.userModel.CreateUser(&models.User{
+		Email:    email,
+		Password: string(hashedPassword),
+		FullName: fullName,
 	})
 }
 

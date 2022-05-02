@@ -23,7 +23,7 @@ func GetAuthController() AuthController {
 }
 
 func (controller *authControllerDependencies) Login(c *gin.Context) {
-	loginBody := requests.ValidateLoginRequest(c)
+	loginBody := requests.GetLoginRequest().Validate(c)
 	token, err := controller.authService.CheckAuthentication(loginBody)
 	if err != nil {
 		respondBadRequest(c, gin.H{
@@ -44,7 +44,19 @@ func (controller *authControllerDependencies) Login(c *gin.Context) {
 }
 
 func (controller *authControllerDependencies) Register(c *gin.Context) {
+	registerBody := requests.GetRegisterRequest().Validate(c)
+	user, err := controller.authService.Register(
+		registerBody.Email,
+		registerBody.Password,
+		registerBody.FullName,
+	)
+	if err != nil {
+		respondBadRequest(c, gin.H{
+			"error": "Register failed, please try again",
+		})
+	}
 
+	respondCreated(c, user)
 }
 
 func (controller *authControllerDependencies) ForgotPassword(c *gin.Context) {
