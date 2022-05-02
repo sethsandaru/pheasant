@@ -8,8 +8,8 @@ Pheasant is a dynamic CRUD Management which helps end-users to create the CRUD l
 
 Pheasant comes with 2 parts:
 - API (this repo)
-- Frontend (Check: pheasant-vue)
-  - (WIP) still thinking in the middle of Svelte and Vue 🤔
+- Frontend (on paper/head)
+  - (WIP) still thinking in the middle of Svelte and Vue 🤔 Will make a decision after finished v0.0.1.
 
 Pheasant is an open-source project and planned to deploy on CLOUD with 100% FREE usage. 
 But if you don't want PheasantCloud keeping your data, feel free to clone and deploy for your own usage privately.
