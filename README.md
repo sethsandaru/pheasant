@@ -1,5 +1,11 @@
 # Pheasant / Pheasant-API
 
+<center>
+
+![Pheasant API SethPhat SethSandaru](./docs/imgs/pheasant-logo.png)
+
+</center>
+
 Pheasant is a dynamic CRUD Management which helps end-users to create the CRUD listing/form in seconds then use it immediately.
 
 Pheasant comes with 2 parts:
