@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"pheasant-api/app/helper"
+	"pheasant-api/app/jobs"
 	"pheasant-api/app/models"
 	"pheasant-api/app/requests"
 	"time"
@@ -16,6 +17,8 @@ type AuthService interface {
 	ValidateToken(token string) (*jwt.Token, error)
 
 	Register(email string, password string, fullName string) (*models.User, error)
+
+	ForgotPassword(email string) bool
 }
 
 type authServiceParams struct {
@@ -78,6 +81,16 @@ func (service *authServiceParams) Register(email string, password string, fullNa
 		Password: string(hashedPassword),
 		FullName: fullName,
 	})
+}
+
+func (service *authServiceParams) ForgotPassword(email string) bool {
+	user, err := service.userModel.GetUserByEmail(email)
+	if err != nil {
+		return false
+	}
+
+	// send email to user via Queue Job
+	return jobs.InitForgotPasswordJob().Dispatch(*user) == nil
 }
 
 func getJwtKey() []byte {

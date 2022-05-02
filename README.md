@@ -35,6 +35,11 @@ Starting the project:
 go run main.go
 ```
 
+Run the queue worker:
+```bash
+go run queue-worker.go
+```
+
 ## Deployment
 
 Coming soon.

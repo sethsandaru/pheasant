@@ -60,5 +60,15 @@ func (controller *authControllerDependencies) Register(c *gin.Context) {
 }
 
 func (controller *authControllerDependencies) ForgotPassword(c *gin.Context) {
+	forgotPasswordBody := requests.GetForgotPasswordRequest().Validate(c)
+	processStatus := controller.authService.ForgotPassword(forgotPasswordBody.Email)
+	if !processStatus {
+		respondBadRequest(c, gin.H{
+			"error": "Email didn't exists on our system or internal error happened. Please check and try again.",
+		})
+	}
 
+	respondOk(c, gin.H{
+		"status": true,
+	})
 }
