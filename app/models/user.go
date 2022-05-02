@@ -1,6 +1,7 @@
 package models
 
 import (
+	"pheasant-api/database"
 	"time"
 )
 
@@ -12,4 +13,14 @@ type User struct {
 	FullName  string
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func GetUserByEmail(email string) (*User, error) {
+	user := User{}
+	userResult := database.DB.Where("email = ?", email).First(&user)
+	if userResult.Error != nil {
+		return nil, userResult.Error
+	}
+
+	return &user, nil
 }

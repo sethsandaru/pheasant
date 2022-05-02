@@ -1,27 +1,30 @@
 package controllers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
 func respondOk(c *gin.Context, obj interface{}) {
-	c.JSON(200, obj)
+	c.JSON(http.StatusOK, obj)
 }
 
 func respondCreated(c *gin.Context, obj interface{}) {
-	c.JSON(201, obj)
+	c.JSON(http.StatusCreated, obj)
 }
 
 func respondBadRequest(c *gin.Context, obj interface{}) {
-	c.JSON(400, obj)
+	c.JSON(http.StatusBadRequest, obj)
 }
 
-func respondUnprocessedEntity(c *gin.Context, obj interface{}) {
-	c.JSON(422, obj)
+func respondUnprocessableEntity(c *gin.Context, obj interface{}) {
+	c.JSON(http.StatusUnprocessableEntity, obj)
 }
 
 func respondInternalServerError(c *gin.Context, obj interface{}) {
-	c.JSON(500, obj)
+	c.JSON(http.StatusInternalServerError, obj)
 }
 
 func respondServiceUnavailable(c *gin.Context, obj interface{}) {
-	c.JSON(503, obj)
+	c.JSON(http.StatusServiceUnavailable, obj)
 }
