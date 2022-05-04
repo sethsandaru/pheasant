@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"github.com/google/uuid"
 	"log"
 	"os"
 	"strconv"
@@ -16,6 +17,7 @@ func GetEnv(key, fallback string) string {
 	return value
 }
 
+// GetIntEnv finds an env variable and parse it to integer (int32)
 func GetIntEnv(key string, fallback int) int {
 	value, exists := os.LookupEnv(key)
 	if !exists {
@@ -28,4 +30,9 @@ func GetIntEnv(key string, fallback int) int {
 	}
 
 	return intValue
+}
+
+// GenerateUUID generates an UUID
+func GenerateUUID() string {
+	return uuid.New().String()
 }

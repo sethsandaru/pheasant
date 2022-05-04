@@ -1,8 +1,6 @@
 package models
 
 import (
-	"gorm.io/gorm"
-	"pheasant-api/database"
 	"time"
 )
 
@@ -11,9 +9,7 @@ type UserModel interface {
 	CreateUser(user *User) (*User, error)
 }
 
-type userModelDependencies struct {
-	db *gorm.DB
-}
+type userModelDependencies struct{}
 
 // User is the main user model.
 type User struct {
@@ -22,19 +18,18 @@ type User struct {
 	Email     string    `json:"email" gorm:"index:,unique"`
 	Password  string    `json:"-"`
 	FullName  string    `json:"full_name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at" gorm:"index"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"index"`
+	DeletedAt time.Time `json:"deleted_at" gorm:"index"`
 }
 
 func GetUserModel() UserModel {
-	return &userModelDependencies{
-		db: database.DB,
-	}
+	return &userModelDependencies{}
 }
 
 func (model *userModelDependencies) GetUserByEmail(email string) (*User, error) {
 	user := User{}
-	userResult := model.db.Where("email = ?", email).First(&user)
+	userResult := DB.Where("email = ?", email).First(&user)
 	if userResult.Error != nil {
 		return nil, userResult.Error
 	}
@@ -46,7 +41,7 @@ func (model *userModelDependencies) CreateUser(user *User) (*User, error) {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-	userResult := model.db.Create(user)
+	userResult := DB.Create(user)
 	if userResult.Error != nil {
 		return nil, userResult.Error
 	}

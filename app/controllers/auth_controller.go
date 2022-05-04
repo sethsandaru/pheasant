@@ -10,6 +10,7 @@ type AuthController interface {
 	Login(c *gin.Context)
 	Register(c *gin.Context)
 	ForgotPassword(c *gin.Context)
+	ResetPassword(c *gin.Context)
 }
 
 type authControllerDependencies struct {
@@ -71,4 +72,8 @@ func (controller *authControllerDependencies) ForgotPassword(c *gin.Context) {
 	respondOk(c, gin.H{
 		"status": true,
 	})
+}
+
+func (controller *authControllerDependencies) ResetPassword(c *gin.Context) {
+	// WIP
 }

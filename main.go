@@ -1,18 +1,18 @@
 package main
 
 import (
-	"pheasant-api/database"
+	"pheasant-api/app/models"
 	"pheasant-api/routes"
 )
 
 // Entrypoint for app.
 func main() {
 	// Load the routes
-	r := routes.SetupApiRouter()
+	ginEngine := routes.SetupApiRouter()
 
 	// Initialize database
-	database.Initialize()
+	models.Initialize()
 
 	// Start the HTTP API
-	r.Run()
+	ginEngine.Run()
 }
