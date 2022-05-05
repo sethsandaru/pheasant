@@ -19,7 +19,7 @@ But if you don't want PheasantCloud keeping your data, feel free to clone and de
 - From low-level/code-wise: CRUD mostly copy-paste, let's do less of that and Pheasant will help you.
 
 ## Dependencies
-- Go 1.16
+- Go 1.16+
 - PostgreSQL
 
 ## Development

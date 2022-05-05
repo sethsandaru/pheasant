@@ -12,14 +12,15 @@ var DB *gorm.DB
 
 // Initialize migrates and sets up the database.
 func Initialize() {
-	u := helper.GetEnv("DATABASE_USER", "golang")
-	p := helper.GetEnv("DATABASE_PASSWORD", "golang")
-	h := helper.GetEnv("DATABASE_HOST", "localhost:3306")
-	n := helper.GetEnv("DATABASE_NAME", "go_test")
-	q := "charset=utf8mb4&parseTime=True&loc=Local"
+	dbUser := helper.GetEnv("DATABASE_USERNAME", "golang")
+	dbPass := helper.GetEnv("DATABASE_PASSWORD", "golang")
+	dbHost := helper.GetEnv("DATABASE_HOST", "localhost")
+	dbPort := helper.GetEnv("DATABASE_PORT", "5432")
+	dbName := helper.GetEnv("DATABASE_NAME", "go_test")
+	//additional := "charset=utf8mb4&parseTime=True&loc=Local"
 
 	// Assemble the connection string.
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?%s", u, p, h, n, q)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	// Connect to the database.
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

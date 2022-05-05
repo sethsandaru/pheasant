@@ -14,7 +14,7 @@ func SetupApiRouter() *gin.Engine {
 	{
 		registerAuthenticationRoutes(v1)
 
-		v1Auth := router.Group("/")
+		v1Auth := v1.Group("/")
 		{
 			v1Auth.Use(middlewares.RequiresAuth())
 			registerReleaseRoutes(v1Auth)
@@ -42,6 +42,6 @@ func registerReleaseRoutes(v1 *gin.RouterGroup) {
 	{
 		releaseController := controllers.GetReleaseController()
 
-		release.GET("/", releaseController.Index)
+		release.GET("", releaseController.Index)
 	}
 }

@@ -11,5 +11,5 @@ type ForgotPasswordToken struct {
 	CreatedAt time.Time `json:"created_at" gorm:"index"`
 	ExpiredAt time.Time `json:"expired_at" gorm:"index"`
 
-	User User `gorm:"foreignKey:fk_forgot_password_token_user"`
+	User User `gorm:"foreignKey:UserID"`
 }
