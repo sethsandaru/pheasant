@@ -3,7 +3,7 @@ package requests
 import "github.com/gin-gonic/gin"
 
 type RegisterRequest interface {
-	Validate(c *gin.Context) RegisterBody
+	Validate(c *gin.Context) (RegisterBody, error)
 }
 
 type registerRequestDependencies struct{}
@@ -18,10 +18,10 @@ func GetRegisterRequest() RegisterRequest {
 	return &registerRequestDependencies{}
 }
 
-func (request *registerRequestDependencies) Validate(c *gin.Context) RegisterBody {
+func (request *registerRequestDependencies) Validate(c *gin.Context) (RegisterBody, error) {
 	registerBody := RegisterBody{}
 
-	validate(c, &registerBody)
+	err := validate(c, &registerBody)
 
-	return registerBody
+	return registerBody, err
 }

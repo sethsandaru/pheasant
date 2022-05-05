@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"log"
 	"time"
 )
 
@@ -43,7 +45,8 @@ func (model *userModelDependencies) CreateUser(user *User) (*User, error) {
 
 	userResult := DB.Create(user)
 	if userResult.Error != nil {
-		return nil, userResult.Error
+		log.Print(userResult.Error)
+		return nil, errors.New("Failed to create new user")
 	}
 
 	return user, nil

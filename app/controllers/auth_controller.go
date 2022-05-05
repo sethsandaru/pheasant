@@ -30,6 +30,8 @@ func (controller *authControllerDependencies) Login(c *gin.Context) {
 		respondBadRequest(c, gin.H{
 			"error": "Email or Password is wrong, please check your detail again.",
 		})
+
+		return
 	}
 
 	// ensure token created successfully
@@ -37,6 +39,8 @@ func (controller *authControllerDependencies) Login(c *gin.Context) {
 		respondInternalServerError(c, gin.H{
 			"error": "Failed to login due to internal server error, please try again.",
 		})
+
+		return
 	}
 
 	respondOk(c, gin.H{
@@ -45,7 +49,12 @@ func (controller *authControllerDependencies) Login(c *gin.Context) {
 }
 
 func (controller *authControllerDependencies) Register(c *gin.Context) {
-	registerBody := requests.GetRegisterRequest().Validate(c)
+	registerBody, err := requests.GetRegisterRequest().Validate(c)
+	if err != nil { // can't abort from the request, so this is the only way T.T
+		return
+	}
+
+	// register
 	user, err := controller.authService.Register(
 		registerBody.Email,
 		registerBody.Password,
@@ -53,8 +62,10 @@ func (controller *authControllerDependencies) Register(c *gin.Context) {
 	)
 	if err != nil {
 		respondBadRequest(c, gin.H{
-			"error": "Register failed, please try again",
+			"error": err.Error(),
 		})
+
+		return
 	}
 
 	respondCreated(c, user)
@@ -67,6 +78,8 @@ func (controller *authControllerDependencies) ForgotPassword(c *gin.Context) {
 		respondBadRequest(c, gin.H{
 			"error": "Email didn't exists on our system or internal error happened. Please check and try again.",
 		})
+
+		return
 	}
 
 	respondOk(c, gin.H{

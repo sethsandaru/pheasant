@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"pheasant-api/app/helper"
 	"pheasant-api/app/jobs"
@@ -71,9 +72,14 @@ func (service *authServiceParams) ValidateToken(token string) (*jwt.Token, error
 }
 
 func (service *authServiceParams) Register(email string, password string, fullName string) (*models.User, error) {
+	user, err := service.userModel.GetUserByEmail(email)
+	if err != nil || user != nil {
+		return nil, errors.New("Email is not available to register")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcryptPasswordCost)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Internal server error, please try again")
 	}
 
 	return service.userModel.CreateUser(&models.User{
