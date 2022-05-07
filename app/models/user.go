@@ -8,7 +8,8 @@ import (
 
 type UserModel interface {
 	GetUserByEmail(email string) (*User, error)
-	CreateUser(user *User) (*User, error)
+	Create(user *User) (*User, error)
+	Update(user *User) (*User, error)
 }
 
 type userModelDependencies struct{}
@@ -39,7 +40,7 @@ func (model *userModelDependencies) GetUserByEmail(email string) (*User, error) 
 	return &user, nil
 }
 
-func (model *userModelDependencies) CreateUser(user *User) (*User, error) {
+func (model *userModelDependencies) Create(user *User) (*User, error) {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
@@ -47,6 +48,18 @@ func (model *userModelDependencies) CreateUser(user *User) (*User, error) {
 	if userResult.Error != nil {
 		log.Print(userResult.Error)
 		return nil, errors.New("Failed to create new user")
+	}
+
+	return user, nil
+}
+
+func (model *userModelDependencies) Update(user *User) (*User, error) {
+	user.UpdatedAt = time.Now()
+
+	userResult := DB.Save(user)
+	if userResult.Error != nil {
+		log.Print(userResult.Error)
+		return nil, errors.New("Failed to update user")
 	}
 
 	return user, nil

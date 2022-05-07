@@ -20,11 +20,16 @@ type AuthService interface {
 	Register(email string, password string, fullName string) (*models.User, error)
 
 	ForgotPassword(email string) bool
+
+	IsResetPasswordTokenStillValid(token string) bool
+
+	ResetPassword(token string, newPassword string) error
 }
 
 type authServiceParams struct {
-	secretKey []byte
-	userModel models.UserModel
+	secretKey                []byte
+	userModel                models.UserModel
+	forgotPasswordTokenModel models.ForgotPasswordTokenModel
 }
 
 const tokenTtl = 30 // minutes
@@ -38,8 +43,9 @@ type Claims struct {
 
 func GetAuthService() AuthService {
 	return &authServiceParams{
-		secretKey: getJwtKey(),
-		userModel: models.GetUserModel(),
+		secretKey:                getJwtKey(),
+		userModel:                models.GetUserModel(),
+		forgotPasswordTokenModel: models.GetForgotPasswordTokenModel(),
 	}
 }
 
@@ -82,7 +88,7 @@ func (service *authServiceParams) Register(email string, password string, fullNa
 		return nil, errors.New("Internal server error, please try again")
 	}
 
-	return service.userModel.CreateUser(&models.User{
+	return service.userModel.Create(&models.User{
 		Email:    email,
 		Password: string(hashedPassword),
 		FullName: fullName,
@@ -97,6 +103,28 @@ func (service *authServiceParams) ForgotPassword(email string) bool {
 
 	// send email to user via Queue Job
 	return jobs.InitForgotPasswordJob().Dispatch(*user) == nil
+}
+
+func (service *authServiceParams) IsResetPasswordTokenStillValid(token string) bool {
+	return service.forgotPasswordTokenModel.IsTokenStillValid(token)
+}
+
+func (service *authServiceParams) ResetPassword(token string, newPassword string) error {
+	forgotPasswordToken := service.forgotPasswordTokenModel.FindByToken(token)
+	if forgotPasswordToken == nil {
+		return errors.New("Token is invalid")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcryptPasswordCost)
+	if err != nil {
+		return errors.New("Internal server error, please try again")
+	}
+
+	user := forgotPasswordToken.User
+	user.Password = string(hashedPassword)
+
+	_, err = service.userModel.Update(&user)
+	return err
 }
 
 func getJwtKey() []byte {

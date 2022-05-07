@@ -10,6 +10,7 @@ type AuthController interface {
 	Login(c *gin.Context)
 	Register(c *gin.Context)
 	ForgotPassword(c *gin.Context)
+	ValidateResetPasswordToken(c *gin.Context)
 	ResetPassword(c *gin.Context)
 }
 
@@ -24,7 +25,11 @@ func GetAuthController() AuthController {
 }
 
 func (controller *authControllerDependencies) Login(c *gin.Context) {
-	loginBody := requests.GetLoginRequest().Validate(c)
+	loginBody, err := requests.GetLoginRequest().Validate(c)
+	if err != nil {
+		return
+	}
+
 	token, err := controller.authService.CheckAuthentication(loginBody)
 	if err != nil {
 		respondBadRequest(c, gin.H{
@@ -87,6 +92,44 @@ func (controller *authControllerDependencies) ForgotPassword(c *gin.Context) {
 	})
 }
 
+func (controller *authControllerDependencies) ValidateResetPasswordToken(c *gin.Context) {
+	token := c.Param("token")
+	isTokenValid := controller.authService.IsResetPasswordTokenStillValid(token)
+
+	if isTokenValid {
+		respondOk(c, gin.H{
+			"valid": true,
+		})
+	} else {
+		respondBadRequest(c, gin.H{
+			"valid": false,
+		})
+	}
+}
+
 func (controller *authControllerDependencies) ResetPassword(c *gin.Context) {
-	// WIP
+	token := c.Param("token")
+	isTokenValid := controller.authService.IsResetPasswordTokenStillValid(token)
+	if !isTokenValid {
+		respondBadRequest(c, gin.H{
+			"message": "Invalid reset password token",
+		})
+	}
+
+	resetPasswordBody, err := requests.GetResetPasswordRequest().Validate(c)
+	if err != nil {
+		return
+	}
+
+	// reset password here
+	err = controller.authService.ResetPassword(token, resetPasswordBody.Password)
+	if err != nil {
+		respondBadRequest(c, gin.H{
+			"message": err.Error(),
+		})
+	} else {
+		respondOk(c, gin.H{
+			"message": "Reset password successfully. You can login again now.",
+		})
+	}
 }

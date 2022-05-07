@@ -33,6 +33,8 @@ func registerAuthenticationRoutes(v1 *gin.RouterGroup) {
 		auth.POST("/login", authController.Login)
 		auth.POST("/register", authController.Register)
 		auth.POST("/forgot-password", authController.ForgotPassword)
+		auth.GET("/reset-password-token/:token", authController.ValidateResetPasswordToken)
+		auth.POST("/reset-password", authController.ResetPassword)
 	}
 }
 

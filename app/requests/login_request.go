@@ -3,7 +3,7 @@ package requests
 import "github.com/gin-gonic/gin"
 
 type LoginRequest interface {
-	Validate(c *gin.Context) LoginBody
+	Validate(c *gin.Context) (LoginBody, error)
 }
 
 type loginRequestDependencies struct{}
@@ -17,10 +17,10 @@ func GetLoginRequest() LoginRequest {
 	return &loginRequestDependencies{}
 }
 
-func (request *loginRequestDependencies) Validate(c *gin.Context) LoginBody {
+func (request *loginRequestDependencies) Validate(c *gin.Context) (LoginBody, error) {
 	loginBody := LoginBody{}
 
-	validate(c, &loginBody)
+	err := validate(c, &loginBody)
 
-	return loginBody
+	return loginBody, err
 }
