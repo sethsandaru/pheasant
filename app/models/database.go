@@ -38,3 +38,7 @@ func Initialize(withMigration bool) {
 
 	DB = db
 }
+
+type HasUUID struct {
+	UUID string `json:"uuid" gorm:"index:,unique; default: uuid_generate_v4()"`
+}
