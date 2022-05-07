@@ -19,8 +19,9 @@ But if you don't want PheasantCloud keeping your data, feel free to clone and de
 - From low-level/code-wise: CRUD mostly copy-paste, let's do less of that and Pheasant will help you.
 
 ## Dependencies
-- Go 1.16
+- Go 1.16+
 - PostgreSQL
+- Redis (for cache and pub/sub queue)
 
 ## Development
 
@@ -30,19 +31,41 @@ Install the dependencies:
 go get
 ```
 
+Create the `.env` file based on the `.env.example` and add your configuration values there.
+
 Starting the project:
 ```bash
-go run main.go
+go run main.go 
+# OR
+make start-app
+```
+
+Run the queue worker:
+```bash
+go run queue-worker.go
+# OR
+make start-worker
 ```
 
 ## Deployment
 
-Coming soon.
+### Build
+
+```bash
+go build main.go # BUILD APP
+go build queue-worker # Build Worker
+# OR
+make build-app
+make build-worker
+```
 
 ## Milestones
 
 ### v0.0.1
 - Basic functionalities
+  - Authentication (Login / Register / Forgot Password)
+  - Manage Entity
+  - Manage Entity's Data
 
 ### v0.0.2
 - More filtering options

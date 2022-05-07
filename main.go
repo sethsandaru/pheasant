@@ -1,18 +1,26 @@
 package main
 
 import (
-	"pheasant-api/database"
+	"log"
+	"pheasant-api/app/models"
 	"pheasant-api/routes"
+
+	"github.com/joho/godotenv"
 )
 
 // Entrypoint for app.
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Load ENV failed. Err: %s", err)
+	}
+
 	// Load the routes
-	r := routes.SetupApiRouter()
+	ginEngine := routes.SetupApiRouter()
 
 	// Initialize database
-	database.Initialize()
+	models.Initialize(true)
 
 	// Start the HTTP API
-	r.Run()
+	ginEngine.Run()
 }
