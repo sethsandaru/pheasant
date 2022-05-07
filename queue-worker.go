@@ -8,28 +8,34 @@ import (
 )
 
 func main() {
+	redisHost := helper.GetEnv("REDIS_HOST", "")
+	redisUser := helper.GetEnv("REDIS_USERNAME", "")
+	redisPass := helper.GetEnv("REDIS_PASSWORD", "")
+	if redisHost == "" || redisUser == "" || redisPass == "" {
+		panic("Missing Redis configuration. Aborted")
+	}
+
 	workerServer := asynq.NewServer(
 		asynq.RedisClientOpt{
-			Addr:     helper.GetEnv("REDIS_HOST", ""),
-			Username: helper.GetEnv("REDIS_USERNAME", ""),
-			Password: helper.GetEnv("REDIS_PASSWORD", ""),
+			Addr:     redisHost,
+			Username: redisUser,
+			Password: redisPass,
 		},
 		asynq.Config{
-			// Specify how many concurrent workers to use
 			Concurrency: helper.GetIntEnv("QUEUE_WORKER_NUMBER", 10),
-			// Optionally specify multiple queues with different priority.
 			Queues: map[string]int{
 				"critical": 6,
 				"default":  3,
 				"low":      1,
 			},
-			// See the godoc for other configuration options
 		},
 	)
 
 	// mux maps a type to a handler
 	mux := asynq.NewServeMux()
-	mux.HandleFunc(jobs.InitForgotPasswordJob().GetName(), jobs.InitForgotPasswordJob().Handle)
+
+	forgotPasswordJob := jobs.InitForgotPasswordJob()
+	mux.HandleFunc(forgotPasswordJob.GetName(), forgotPasswordJob.Handle)
 
 	if err := workerServer.Run(mux); err != nil {
 		log.Fatalf("could not run server: %v", err)
