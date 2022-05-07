@@ -124,7 +124,14 @@ func (service *authServiceParams) ResetPassword(token string, newPassword string
 	user.Password = string(hashedPassword)
 
 	_, err = service.userModel.Update(&user)
-	return err
+	if err != nil {
+		return errors.New("Internal server error, please try again")
+	}
+
+	// remove this token
+	service.forgotPasswordTokenModel.DeleteByToken(token)
+
+	return nil
 }
 
 func getJwtKey() []byte {

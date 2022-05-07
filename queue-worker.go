@@ -2,22 +2,33 @@ package main
 
 import (
 	"github.com/hibiken/asynq"
+	"github.com/joho/godotenv"
 	"log"
 	"pheasant-api/app/helper"
 	"pheasant-api/app/jobs"
+	"pheasant-api/app/models"
 )
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Load ENV failed. Err: %s", err)
+	}
+
+	// DB init
+	models.Initialize(false)
+
 	redisHost := helper.GetEnv("REDIS_HOST", "")
+	redisPort := helper.GetEnv("REDIS_PORT", "6379")
 	redisUser := helper.GetEnv("REDIS_USERNAME", "")
 	redisPass := helper.GetEnv("REDIS_PASSWORD", "")
-	if redisHost == "" || redisUser == "" || redisPass == "" {
+	if redisHost == "" {
 		panic("Missing Redis configuration. Aborted")
 	}
 
 	workerServer := asynq.NewServer(
 		asynq.RedisClientOpt{
-			Addr:     redisHost,
+			Addr:     redisHost + ":" + redisPort,
 			Username: redisUser,
 			Password: redisPass,
 		},

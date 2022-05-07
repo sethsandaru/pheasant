@@ -9,7 +9,8 @@ type ResetPasswordRequest interface {
 type resetPasswordRequestDependencies struct{}
 
 type ResetPasswordBody struct {
-	Password string `json:"password" binding:"required"`
+	Token    string `json:"token" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 func GetResetPasswordRequest() ResetPasswordRequest {

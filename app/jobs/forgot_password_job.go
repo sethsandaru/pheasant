@@ -24,8 +24,13 @@ type forgotPasswordDependencies struct {
 const ForgotPasswordTemplate = "forgot_password_template.html"
 
 type forgotPasswordTemplateData struct {
-	user             models.User
-	resetPasswordUrl string
+	User             models.User
+	ResetPasswordUrl string
+}
+
+type forgotPasswordJobPayload struct {
+	User   models.User
+	UserID uint64
 }
 
 func InitForgotPasswordJob() ForgotPasswordJob {
@@ -40,7 +45,10 @@ func (job *forgotPasswordDependencies) GetName() string {
 
 // Dispatch will dispatch the queue task
 func (job *forgotPasswordDependencies) Dispatch(user models.User) error {
-	payload, err := json.Marshal(user)
+	payload, err := json.Marshal(&forgotPasswordJobPayload{
+		User:   user,
+		UserID: user.ID,
+	})
 	if err != nil {
 		return err
 	}
@@ -51,20 +59,26 @@ func (job *forgotPasswordDependencies) Dispatch(user models.User) error {
 
 // Handle will run the task and send out email to user
 func (job *forgotPasswordDependencies) Handle(ctx context.Context, t *asynq.Task) error {
-	var user models.User
-	if err := json.Unmarshal(t.Payload(), &user); err != nil {
+	var payload forgotPasswordJobPayload
+	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
 		return fmt.Errorf("json.Unmarshal failed: %v", err)
 	}
 
 	// create forgot password token
-	resetPasswordToken := helper.GenerateUUID()
-	resetPasswordUrl := helper.GetEnv("FRONTEND_FORGOT_PASSWORD_URL", "http://localhost/forgot-password/") + resetPasswordToken
+	payload.User.ID = payload.UserID
+	resetPasswordToken, err := models.GetForgotPasswordTokenModel().CreateForUser(payload.User)
+	if err != nil {
+		return fmt.Errorf("Failed to create token for User")
+	}
+
+	// generate URL
+	resetPasswordUrl := helper.GetEnv("FRONTEND_FORGOT_PASSWORD_URL", "http://localhost/forgot-password/") + resetPasswordToken.Token
 
 	// send email
-	mailRequest := helper.NewMailRequest([]string{user.Email}, "Forgot Password Instruction")
+	mailRequest := helper.NewMailRequest([]string{payload.User.Email}, "Forgot Password Instruction")
 	mailRequest.Send(ForgotPasswordTemplate, forgotPasswordTemplateData{
-		user:             user,
-		resetPasswordUrl: resetPasswordUrl,
+		User:             payload.User,
+		ResetPasswordUrl: resetPasswordUrl,
 	})
 
 	return nil

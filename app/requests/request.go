@@ -8,23 +8,28 @@ import (
 
 func validate(c *gin.Context, body interface{}) error {
 	if err := c.ShouldBindJSON(&body); err != nil {
-		validateObj := validator.New()
-
-		// validation error
-		if err := validateObj.Struct(body); err != nil {
-			c.AbortWithStatusJSON(
-				http.StatusUnprocessableEntity,
-				gin.H{
-					"error":    "Validation Error",
-					"messages": err.Error(),
-				},
-			)
-
-			return err
-		}
+		c.AbortWithStatusJSON(
+			http.StatusUnprocessableEntity,
+			gin.H{
+				"error": "Binding Error. Make sure your content is JSON",
+			},
+		)
 
 		// binding error
 		return err
+	}
+
+	validateObj := validator.New()
+	if validateErr := validateObj.Struct(body); validateErr != nil {
+		c.AbortWithStatusJSON(
+			http.StatusUnprocessableEntity,
+			gin.H{
+				"error":    "Validation Error",
+				"messages": validateErr.Error(),
+			},
+		)
+
+		return validateErr
 	}
 
 	return nil

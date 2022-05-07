@@ -12,9 +12,11 @@ func getQueueClient() *asynq.Client {
 	if queueClient != nil {
 		return queueClient
 	}
+	redisHost := helper.GetEnv("REDIS_HOST", "")
+	redisPort := helper.GetEnv("REDIS_PORT", "6379")
 
 	return asynq.NewClient(asynq.RedisClientOpt{
-		Addr:     helper.GetEnv("REDIS_HOST", ""),
+		Addr:     redisHost + ":" + redisPort,
 		Username: helper.GetEnv("REDIS_USERNAME", ""),
 		Password: helper.GetEnv("REDIS_PASSWORD", ""),
 	})

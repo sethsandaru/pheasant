@@ -19,7 +19,7 @@ func main() {
 	ginEngine := routes.SetupApiRouter()
 
 	// Initialize database
-	models.Initialize()
+	models.Initialize(true)
 
 	// Start the HTTP API
 	ginEngine.Run()

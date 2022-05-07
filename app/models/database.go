@@ -11,7 +11,7 @@ import (
 var DB *gorm.DB
 
 // Initialize migrates and sets up the database.
-func Initialize() {
+func Initialize(withMigration bool) {
 	dbUser := helper.GetEnv("DATABASE_USERNAME", "golang")
 	dbPass := helper.GetEnv("DATABASE_PASSWORD", "golang")
 	dbHost := helper.GetEnv("DATABASE_HOST", "localhost")
@@ -30,9 +30,11 @@ func Initialize() {
 	}
 
 	// Migrate the schemas
-	db.AutoMigrate(&User{})
-	db.AutoMigrate(&ForgotPasswordToken{})
-	db.AutoMigrate(&Release{})
+	if withMigration {
+		db.AutoMigrate(&User{})
+		db.AutoMigrate(&ForgotPasswordToken{})
+		db.AutoMigrate(&Release{})
+	}
 
 	DB = db
 }

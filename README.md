@@ -21,6 +21,7 @@ But if you don't want PheasantCloud keeping your data, feel free to clone and de
 ## Dependencies
 - Go 1.16+
 - PostgreSQL
+- Redis (for cache and pub/sub queue)
 
 ## Development
 

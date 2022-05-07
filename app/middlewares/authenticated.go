@@ -8,12 +8,27 @@ import (
 
 func RequiresAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authentication")
-		token := authHeader[len("Bearer"):]
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			abortUnauthenticated(c)
 
+			return
+		}
+
+		token := authHeader[len("Bearer "):]
 		tokenCheck, err := services.GetAuthService().ValidateToken(token)
 		if err != nil || !tokenCheck.Valid {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			abortUnauthenticated(c)
+
+			return
 		}
+
+		c.Next()
 	}
+}
+
+func abortUnauthenticated(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		"message": "Unauthenticated",
+	})
 }

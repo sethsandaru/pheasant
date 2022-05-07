@@ -9,8 +9,8 @@ type LoginRequest interface {
 type loginRequestDependencies struct{}
 
 type LoginBody struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }
 
 func GetLoginRequest() LoginRequest {

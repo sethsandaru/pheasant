@@ -23,7 +23,7 @@ type MailRequest struct {
 
 const (
 	MIME                  = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	BaseEmailTemplatePath = "../../resources/templates/emails/"
+	BaseEmailTemplatePath = "./resources/templates/emails/"
 )
 
 func NewMailRequest(to []string, subject string) *MailRequest {

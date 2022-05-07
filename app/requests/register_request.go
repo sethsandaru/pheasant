@@ -9,9 +9,9 @@ type RegisterRequest interface {
 type registerRequestDependencies struct{}
 
 type RegisterBody struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-	FullName string `json:"full_name" binding:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+	FullName string `json:"full_name" validate:"required"`
 }
 
 func GetRegisterRequest() RegisterRequest {
