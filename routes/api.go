@@ -51,7 +51,7 @@ func registerReleaseRoutes(v1 *gin.RouterGroup) {
 
 // entity-group routes
 func registerEntityRoutes(v1 *gin.RouterGroup) {
-	entity := v1.Group("/releases")
+	entity := v1.Group("/entities")
 	{
 		entityController := controllers.GetEntityController()
 
