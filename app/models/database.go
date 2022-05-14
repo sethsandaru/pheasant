@@ -30,6 +30,7 @@ func Initialize(withMigration bool) {
 	}
 
 	// Migrate the schemas
+	// TODO: change to goose if possible
 	if withMigration {
 		db.AutoMigrate(&User{})
 		db.AutoMigrate(&ForgotPasswordToken{})

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
+	"pheasant-api/app/models"
 )
 
 func validate(c *gin.Context, body interface{}) error {
@@ -33,4 +34,21 @@ func validate(c *gin.Context, body interface{}) error {
 	}
 
 	return nil
+}
+
+func getUser(c *gin.Context) *models.User {
+	userRequest, isExists := c.Get("user")
+	if !isExists {
+		return nil
+	}
+
+	user := userRequest.(*models.User)
+	return user
+}
+
+func abortUnauthorized(c *gin.Context) {
+	c.AbortWithStatusJSON(
+		http.StatusForbidden,
+		gin.H{"error": "This action is unauthorized."},
+	)
 }

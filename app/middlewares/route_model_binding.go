@@ -5,20 +5,21 @@ import (
 	"log"
 	"net/http"
 	"pheasant-api/app/models"
+	"reflect"
 )
 
 type modelMapping struct {
-	model  interface{}
+	model  reflect.Type
 	column string
 }
 
 var routeModelMapping = map[string]modelMapping{
-	"entity": makeModelMapping(&models.Entity{}, "uuid"),
+	"entity": makeModelMapping(models.Entity{}, "uuid"),
 }
 
 func makeModelMapping(model interface{}, column string) modelMapping {
 	return modelMapping{
-		model:  model,
+		model:  reflect.TypeOf(model),
 		column: column,
 	}
 }
@@ -48,8 +49,8 @@ func RouteModelBinding() gin.HandlerFunc {
 }
 
 func retrieveModel(c *gin.Context, modelMapInfo modelMapping, routeValue string, routeParamKey string) {
-	model := modelMapInfo.model
-	queryResult := models.DB.Where(modelMapInfo.column+" = ?", routeValue).First(model)
+	model := reflect.New(modelMapInfo.model).Interface()
+	queryResult := models.DB.Where(modelMapInfo.column+" = ?", routeValue).First(&model)
 	if queryResult.Error != nil {
 		log.Print(queryResult.Error)
 		abortNotFound(c)
