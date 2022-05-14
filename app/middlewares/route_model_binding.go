@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"pheasant-api/app/models"
 	"reflect"
+	"strings"
 )
 
 type modelMapping struct {
@@ -26,24 +27,22 @@ func makeModelMapping(model interface{}, column string) modelMapping {
 
 func RouteModelBinding() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		routeParamValue := ""
-		routeParamKey := ""
-		var routeParamModel modelMapping
-
-		for routeParam, model := range routeModelMapping {
-			routeParamModel = model
-			routeParamKey = routeParam
-			routeParamValue = c.Param(routeParam)
-
-			if routeParamValue != "" {
-				break
-			}
+		routePath := c.FullPath()
+		if !strings.Contains(routePath, ":") {
+			c.Next()
+			return
 		}
 
-		if routeParamValue != "" {
-			retrieveModel(c, routeParamModel, routeParamValue, routeParamKey)
-		} else {
-			c.Next()
+		params := getParams(routePath)
+		for _, routeParam := range params {
+			_, exists := routeModelMapping[routeParam]
+			if !exists {
+				continue
+			}
+
+			routeParamModel := routeModelMapping[routeParam]
+			routeParamValue := c.Param(routeParam)
+			retrieveModel(c, routeParamModel, routeParamValue, routeParam)
 		}
 	}
 }
@@ -60,6 +59,23 @@ func retrieveModel(c *gin.Context, modelMapInfo modelMapping, routeValue string,
 
 	c.Set(routeParamKey, model)
 	c.Next()
+}
+
+func getParams(routePath string) []string {
+	paramParts := strings.Split(routePath, ":")
+	params := []string{}
+
+	for index, paramPart := range paramParts {
+		if index == 0 {
+			continue
+		}
+
+		paramName := strings.Split(paramPart, "/")[0]
+
+		params = append(params, paramName)
+	}
+
+	return params
 }
 
 func abortNotFound(c *gin.Context) {
