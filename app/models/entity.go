@@ -15,7 +15,7 @@ type Entity struct {
 	UpdatedAt   time.Time      `json:"updated_at" gorm:"index"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 
-	User User `gorm:"foreignKey:UserID"`
+	User User `json:"user" gorm:"foreignKey:UserID"`
 }
 
 type EntityModel interface {

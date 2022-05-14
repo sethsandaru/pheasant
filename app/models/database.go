@@ -34,6 +34,7 @@ func Initialize(withMigration bool) {
 		db.AutoMigrate(&User{})
 		db.AutoMigrate(&ForgotPasswordToken{})
 		db.AutoMigrate(&Release{})
+		db.AutoMigrate(&Entity{})
 	}
 
 	DB = db

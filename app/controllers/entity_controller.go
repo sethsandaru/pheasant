@@ -18,13 +18,14 @@ func GetEntityController() EntityController {
 	return &entityControllerDependencies{}
 }
 
-// Index Get a list of Entities of User
+// Index Get a list of Entities of User with Pagination
 func (controller *entityControllerDependencies) Index(c *gin.Context) {
 	respondOk(c, "OK")
 }
 
 func (controller *entityControllerDependencies) Show(c *gin.Context) {
-	respondOk(c, "OK")
+	entity, _ := c.Get("entity")
+	respondOk(c, entity)
 }
 
 func (controller *entityControllerDependencies) Store(c *gin.Context) {
