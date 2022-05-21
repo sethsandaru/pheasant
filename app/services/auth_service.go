@@ -15,7 +15,7 @@ import (
 
 type AuthService interface {
 	CheckAuthentication(loginBody requests.LoginBody) (string, error)
-	ValidateToken(token string) (*jwt.Token, error)
+	ValidateToken(token string) (*jwt.Token, error, *Claims)
 
 	Register(email string, password string, fullName string) (*models.User, error)
 
@@ -36,8 +36,9 @@ const tokenTtl = 30 // minutes
 const bcryptPasswordCost = 14
 
 type Claims struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	Email  string `json:"email"`
+	Name   string `json:"name"`
+	UserId uint64 `json:"user_id"`
 	jwt.StandardClaims
 }
 
@@ -67,14 +68,18 @@ func (service *authServiceParams) CheckAuthentication(loginBody requests.LoginBo
 }
 
 // ValidateToken check the availability of the Token
-func (service *authServiceParams) ValidateToken(token string) (*jwt.Token, error) {
-	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+func (service *authServiceParams) ValidateToken(token string) (*jwt.Token, error, *Claims) {
+	claims := &Claims{}
+
+	jwtToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
 			return nil, fmt.Errorf("Invalid token", token.Header["alg"])
 		}
 
 		return []byte(service.secretKey), nil
 	})
+
+	return jwtToken, err, claims
 }
 
 func (service *authServiceParams) Register(email string, password string, fullName string) (*models.User, error) {
@@ -141,8 +146,9 @@ func getJwtKey() []byte {
 func createJwtToken(user *models.User) string {
 	tokenExpirationTime := time.Now().Add(tokenTtl * time.Minute)
 	claims := &Claims{
-		Email: user.Email,
-		Name:  user.FullName,
+		UserId: user.ID,
+		Email:  user.Email,
+		Name:   user.FullName,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			IssuedAt:  time.Now().Unix(),

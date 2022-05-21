@@ -3,6 +3,7 @@ package middlewares
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"pheasant-api/app/models"
 	"pheasant-api/app/services"
 )
 
@@ -16,13 +17,22 @@ func RequiresAuth() gin.HandlerFunc {
 		}
 
 		token := authHeader[len("Bearer "):]
-		tokenCheck, err := services.GetAuthService().ValidateToken(token)
+		tokenCheck, err, claims := services.GetAuthService().ValidateToken(token)
 		if err != nil || !tokenCheck.Valid {
 			abortUnauthenticated(c)
 
 			return
 		}
 
+		// inject user instance across the request lifecycle
+		user, err := models.GetUserModel().Find(claims.UserId)
+		if err != nil {
+			abortUnauthenticated(c)
+
+			return
+		}
+
+		c.Set("user", user)
 		c.Next()
 	}
 }

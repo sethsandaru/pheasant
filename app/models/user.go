@@ -8,6 +8,7 @@ import (
 
 type UserModel interface {
 	GetUserByEmail(email string) (*User, error)
+	Find(id uint64) (*User, error)
 	Create(user *User) (*User, error)
 	Update(user *User) (*User, error)
 }
@@ -33,6 +34,16 @@ func GetUserModel() UserModel {
 func (model *userModelDependencies) GetUserByEmail(email string) (*User, error) {
 	user := User{}
 	userResult := DB.Where("email = ?", email).First(&user)
+	if userResult.Error != nil {
+		return nil, userResult.Error
+	}
+
+	return &user, nil
+}
+
+func (model *userModelDependencies) Find(id uint64) (*User, error) {
+	user := User{}
+	userResult := DB.First(&user, id)
 	if userResult.Error != nil {
 		return nil, userResult.Error
 	}

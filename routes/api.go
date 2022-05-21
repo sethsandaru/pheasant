@@ -16,8 +16,9 @@ func SetupApiRouter() *gin.Engine {
 
 		v1Auth := v1.Group("/")
 		{
-			v1Auth.Use(middlewares.RequiresAuth())
+			v1Auth.Use(middlewares.RequiresAuth(), middlewares.RouteModelBinding())
 			registerReleaseRoutes(v1Auth)
+			registerEntityRoutes(v1Auth)
 		}
 	}
 
@@ -45,5 +46,19 @@ func registerReleaseRoutes(v1 *gin.RouterGroup) {
 		releaseController := controllers.GetReleaseController()
 
 		release.GET("", releaseController.Index)
+	}
+}
+
+// entity-group routes
+func registerEntityRoutes(v1 *gin.RouterGroup) {
+	entity := v1.Group("/entities")
+	{
+		entityController := controllers.GetEntityController()
+
+		entity.GET("", entityController.Index)
+		entity.GET("/:entity", entityController.Show)
+		entity.POST("", entityController.Store)
+		entity.PUT("/:entity", entityController.Update)
+		entity.DELETE("/:entity", entityController.Destroy)
 	}
 }
