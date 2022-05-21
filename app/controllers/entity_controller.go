@@ -38,7 +38,7 @@ func (controller *entityControllerDependencies) Index(c *gin.Context) {
 		return
 	}
 
-	respondOk(c, gin.H{"data": entities, "page": page})
+	respondOk(c, gin.H{"data": entities})
 }
 
 func (controller *entityControllerDependencies) Show(c *gin.Context) {

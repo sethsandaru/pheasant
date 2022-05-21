@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"net/http"
 	"pheasant-api/app/helper"
-	"strconv"
 )
 
 // DB is the database connection.
