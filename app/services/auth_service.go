@@ -32,7 +32,7 @@ type authServiceParams struct {
 	forgotPasswordTokenModel models.ForgotPasswordTokenModel
 }
 
-const tokenTtl = 30 // minutes
+const tokenTtl = 180 // minutes
 const bcryptPasswordCost = 14
 
 type Claims struct {
