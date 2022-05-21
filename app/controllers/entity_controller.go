@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"pheasant-api/app/models"
 	"pheasant-api/app/requests"
+	"strconv"
 )
 
 type EntityController interface {
@@ -22,7 +23,22 @@ func GetEntityController() EntityController {
 
 // Index Get a list of Entities of User with Pagination
 func (controller *entityControllerDependencies) Index(c *gin.Context) {
-	respondOk(c, "OK")
+	request := requests.GetEntityIndexRequest()
+	user := request.GetUser(c)
+
+	// listing params
+	keyword := c.Query("keyword")
+	page, _ := strconv.Atoi(c.Query("page"))
+	pageSize, _ := strconv.Atoi(c.Query("page_size"))
+
+	entities, err := models.GetEntityModel().Search(user, keyword, page, pageSize)
+	if err != nil {
+		respondBadRequest(c, gin.H{"message": "Failed to retrieve the entities"})
+
+		return
+	}
+
+	respondOk(c, gin.H{"data": entities, "page": page})
 }
 
 func (controller *entityControllerDependencies) Show(c *gin.Context) {
@@ -59,12 +75,34 @@ func (controller *entityControllerDependencies) Store(c *gin.Context) {
 }
 
 func (controller *entityControllerDependencies) Update(c *gin.Context) {
-	respondOk(c, "OK")
+	request := requests.GetEntityUpdateRequest()
+	isAuthorized := request.Authorize(c)
+	if !isAuthorized {
+		return
+	}
+
+	updateBody, err := request.Validate(c)
+	if err != nil {
+		return
+	}
+
+	entity := request.GetEntity(c)
+	entity.Title = updateBody.Title
+	entity.Description = updateBody.Description
+
+	updatedEntity, err := models.GetEntityModel().Update(entity)
+	if err != nil {
+		respondBadRequest(c, gin.H{"error": "Failed to update Entity"})
+
+		return
+	}
+
+	respondOk(c, gin.H{"uuid": updatedEntity.UUID})
 }
 
 func (controller *entityControllerDependencies) Destroy(c *gin.Context) {
 	request := requests.GetEntityDestroyRequest()
-	isAuthorized := requests.GetEntityDestroyRequest().Authorize(c)
+	isAuthorized := request.Authorize(c)
 	if !isAuthorized {
 		return
 	}

@@ -20,8 +20,9 @@ type Entity struct {
 
 type EntityModel interface {
 	FindByUuid(uuid string) (*Entity, error)
+	Search(user *User, keyword string, page int, pageSize int) ([]Entity, error)
 	Create(entity Entity) (*Entity, error)
-	Update(entity Entity) (*Entity, error)
+	Update(entity *Entity) (*Entity, error)
 	Delete(entity Entity) bool
 }
 
@@ -41,6 +42,21 @@ func (model *entityModelDependencies) FindByUuid(uuid string) (*Entity, error) {
 	return entity, nil
 }
 
+func (model *entityModelDependencies) Search(user *User, keyword string, page int, pageSize int) ([]Entity, error) {
+	var entities []Entity
+	query := DB.Scopes(Paginate(page, pageSize))
+
+	wrappedKeyword := "%" + keyword + "%"
+	query.Where("(title LIKE ? OR description LIKE ?) AND user_id = ?", wrappedKeyword, wrappedKeyword, user.ID)
+
+	queryResult := query.Find(&entities)
+	if queryResult.Error != nil {
+		return nil, queryResult.Error
+	}
+
+	return entities, nil
+}
+
 func (model *entityModelDependencies) Create(entity Entity) (*Entity, error) {
 	createResult := DB.Create(&entity)
 	if createResult.Error != nil {
@@ -50,13 +66,13 @@ func (model *entityModelDependencies) Create(entity Entity) (*Entity, error) {
 	return &entity, nil
 }
 
-func (model *entityModelDependencies) Update(entity Entity) (*Entity, error) {
-	saveResult := DB.Save(&entity)
+func (model *entityModelDependencies) Update(entity *Entity) (*Entity, error) {
+	saveResult := DB.Save(entity)
 	if saveResult.Error != nil {
 		return nil, saveResult.Error
 	}
 
-	return &entity, nil
+	return entity, nil
 }
 
 func (model *entityModelDependencies) Delete(entity Entity) bool {
