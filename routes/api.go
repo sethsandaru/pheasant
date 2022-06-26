@@ -53,6 +53,7 @@ func registerReleaseRoutes(v1 *gin.RouterGroup) {
 func registerEntityRoutes(v1 *gin.RouterGroup) {
 	entity := v1.Group("/entities")
 	{
+		// entity
 		entityController := controllers.GetEntityController()
 
 		entity.GET("", entityController.Index)
@@ -60,5 +61,11 @@ func registerEntityRoutes(v1 *gin.RouterGroup) {
 		entity.POST("", entityController.Store)
 		entity.PUT("/:entity", entityController.Update)
 		entity.DELETE("/:entity", entityController.Destroy)
+
+		// entity fields
+		entityFieldController := controllers.GetEntityFieldController()
+
+		entity.GET("/:entity/fields", entityFieldController.Index)
+		entity.PUT("/:entity/fields", entityFieldController.Update)
 	}
 }
